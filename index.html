@@ -75,17 +75,23 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <label for="inputPutNombre">Nombre:</label>
-                    <input type="text" id="inputPutNombre" class="form-control my-1">
+                    <input type="text" id="inputPutNombre" class="form-control my-1 modificar-NA" oninput="datosCorrectos('modificar-NA', 'btnSendChanges')">
                     <label for="inputPutApellido">Apellido:</label>
-                    <input type="text" id="inputPutApellido" class="form-control my-1">
+                    <input type="text" id="inputPutApellido" class="form-control my-1 modificar-NA" oninput="datosCorrectos('modificar-NA', 'btnSendChanges')">
                 </div>
                 <div class="modal-footer">
                     <button id="cancelar" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btnSendChanges" data-bs-dismiss="modal">Guardar</button>
+                    <button type="button" class="btn btn-primary" id="btnSendChanges" data-bs-dismiss="modal" disabled>Guardar</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Alerta de error -->
+    <div class="alert alert-danger alert-dismissible fade text-center" role="alert" id="errorAlert">
+        <p>Algo salió mal...</p>
+    </div>
+
     <script src="scripts/bootstrap.bundle.js"></script>
     <script src="scripts/main.js"></script>
 </body>

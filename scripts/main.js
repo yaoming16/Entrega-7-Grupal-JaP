@@ -14,13 +14,15 @@ async function getData(url, options = {}) {
     ...options,
   });
   let data = await response.json();
-  console.log(response.statusText)
-
-  if (response.statusText === 'OK') {
+  console.log(response.status);
+  if (response.status > 199 && response.status < 300) {
     return data;
   } else {
-    alert('asd');
-    return 'error'; //'error'
+    document.getElementById("errorAlert").classList.add("show");
+    setTimeout(function () {
+      document.getElementById("errorAlert").classList.remove("show");
+    }, 3000);
+    return 'error';
   }
 
 
@@ -55,26 +57,30 @@ btnGet1.addEventListener('click', async () => {
     }
   }
 
+  inputGet1Id.value = "";
+
 });
 
 btnPost.addEventListener('click', async () => {
   // POST https://SECRET.mockapi.io/users
 
-  const inputPostNombre = document.querySelector('#inputPostNombre').value;
-  const inputPostApellido = document.querySelector('#inputPostApellido').value;
+  const inputPostNombre = document.querySelector('#inputPostNombre');
+  const inputPostApellido = document.querySelector('#inputPostApellido');
 
-  let usuario = {
-    name: inputPostNombre,
-    lastname: inputPostApellido,
+  let nuevoUs = {
+    name: inputPostNombre.value,
+    lastname: inputPostApellido.value,
   }
 
-  await getData(url + '/users', { method: 'POST', body: JSON.stringify(usuario) });
+  let item = await getData(url + 'users', { method: 'POST', body: JSON.stringify(nuevoUs) });
 
-  inputPostNombre.value = "";
-  inputPostApellido.value = "";
+  if (item != 'error') {
+    inputPostNombre.value = "";
+    inputPostApellido.value = "";
 
-  btnGet1.click();
-  datosCorrectos('nuevo-registro', 'btnPost');
+    btnGet1.click();
+    datosCorrectos('nuevo-registro', 'btnPost');
+  }
 });
 
 btnPut.addEventListener('click', async () => {
@@ -84,33 +90,40 @@ btnPut.addEventListener('click', async () => {
   let inputPutNombre = document.querySelector("#inputPutNombre");
   let btnGuardar = document.querySelector("#btnSendChanges");
 
-  if (idItem.value) {
-    let item = await getData(url + '/users/' + idItem.value, { method: 'GET' });
-    if (item != 'error') {
-      inputPutNombre.value = item.name;
-      inputPutApellido.value = item.lastname;
-      let modal = new bootstrap.Modal(document.getElementById('dataModal'));
-      modal.show();
+  let item = await getData(url + 'users/' + idItem.value, { method: 'GET' });
+  if (item != 'error') {
+    inputPutNombre.value = item.name;
+    inputPutApellido.value = item.lastname;
+    let modal = new bootstrap.Modal(document.getElementById('dataModal'));
+    modal.show();
 
-      btnGuardar.addEventListener('click', async () => {
-        let usuario = {
-          name: inputPutNombre.value,
-          lastname: inputPutApellido.value,
-        }
-        await getData(url + '/users/' + idItem.value, { method: 'PUT', body: JSON.stringify(usuario)});
+    btnGuardar.addEventListener('click', async () => {
+      let usuario = {
+        name: inputPutNombre.value,
+        lastname: inputPutApellido.value,
+      }
+      console.log(usuario);
+      let item2 = await getData(url + 'users/' + item.id, { method: 'PUT', redirect: 'follow', body: JSON.stringify(usuario) });
+      if(item2 != 'error'){
         btnGet1.click();
-      })
-    }
-
+        usuario = "";
+        inputPutApellido.value = "";
+        inputPutNombre.value = "";
+      }
+    })
   }
 
+
+
+  idItem.value = "";
+  datosCorrectos('modificar-dato', 'btnPut')
 
 });
 
 btnDelete.addEventListener('click', async () => {
   //https://SECRET.mockapi.io/users/:id
   const idDelete = document.querySelector('#inputDelete');
-  let item = await getData(url + '/users/' + idDelete.value, { method: 'DELETE' });
+  let item = await getData(url + 'users/' + idDelete.value, { method: 'DELETE' });
 
   if (item !== 'error') {
     btnGet1.click();
@@ -120,19 +133,16 @@ btnDelete.addEventListener('click', async () => {
 });
 
 const datosCorrectos = (clase, btnId) => {
-  let inputs = document.querySelectorAll(`.${clase}`);
+  let inputs = Array.from(document.querySelectorAll(`.${clase}`));
   let btn = document.querySelector(`#${btnId}`);
-  inputs.forEach((input) => {
-    if ((input.value)) {
-      if (typeof parseInt(input.value) === 'number' && parseInt(input.value) > 0) {
-        btn.removeAttribute('disabled');
-      } else if (typeof input.value === 'string' && input.value.trim() !== "") {
-        btn.removeAttribute('disabled');
-      } else {
-        btn.setAttribute('disabled', '');
-      }
-    } else {
-      btn.setAttribute('disabled', '');
-    }
-  })
+
+  let cumplen = inputs.every((input) => {
+    return ((input.value) && (input.value.trim() !== ""));
+  });
+
+  if (cumplen) {
+    btn.removeAttribute('disabled');
+  } else {
+    btn.setAttribute('disabled', '');
+  }
 };
