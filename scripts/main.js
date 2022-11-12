@@ -5,6 +5,10 @@ const btnPut = document.querySelector('#btnPut');
 const btnDelete = document.querySelector('#btnDelete');
 const btnSendChanges = document.querySelector('#btnSendChanges');
 const results = document.querySelector('#results');
+let btnGuardar = document.querySelector("#btnSendChanges");
+let idItem = document.querySelector("#inputPutId");
+let inputPutApellido = document.querySelector("#inputPutApellido");
+let inputPutNombre = document.querySelector("#inputPutNombre");
 
 
 async function getData(url, options = {}) {
@@ -83,42 +87,36 @@ btnPost.addEventListener('click', async () => {
   }
 });
 
+let itemPut = {};
 btnPut.addEventListener('click', async () => {
   //https://SECRET.mockapi.io/users/:id
-  let idItem = document.querySelector("#inputPutId");
-  let inputPutApellido = document.querySelector("#inputPutApellido");
-  let inputPutNombre = document.querySelector("#inputPutNombre");
-  let btnGuardar = document.querySelector("#btnSendChanges");
-
-  let item = await getData(url + 'users/' + idItem.value, { method: 'GET' });
-  if (item != 'error') {
-    inputPutNombre.value = item.name;
-    inputPutApellido.value = item.lastname;
+  itemPut = await getData(url + 'users/' + idItem.value, { method: 'GET' });
+  if (itemPut != 'error') {
+    inputPutNombre.value = itemPut.name;
+    inputPutApellido.value = itemPut.lastname;
     let modal = new bootstrap.Modal(document.getElementById('dataModal'));
     modal.show();
-
-    btnGuardar.addEventListener('click', async () => {
-      let usuario = {
-        name: inputPutNombre.value,
-        lastname: inputPutApellido.value,
-      }
-      console.log(usuario);
-      let item2 = await getData(url + 'users/' + item.id, { method: 'PUT', redirect: 'follow', body: JSON.stringify(usuario) });
-      if(item2 != 'error'){
-        btnGet1.click();
-        usuario = "";
-        inputPutApellido.value = "";
-        inputPutNombre.value = "";
-      }
-    })
   }
-
-
 
   idItem.value = "";
   datosCorrectos('modificar-dato', 'btnPut')
 
 });
+
+btnGuardar.addEventListener('click', async () => {
+  let usuario = {
+    name: inputPutNombre.value,
+    lastname: inputPutApellido.value,
+  }
+  console.log(usuario);
+  let item2 = await getData(url + 'users/' + itemPut.id, { method: 'PUT', body: JSON.stringify(usuario) });
+  if(item2 != 'error'){
+    btnGet1.click();
+    usuario = "";
+    inputPutApellido.value = "";
+    inputPutNombre.value = "";
+  }
+})
 
 btnDelete.addEventListener('click', async () => {
   //https://SECRET.mockapi.io/users/:id
